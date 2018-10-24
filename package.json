@@ -1,0 +1,12 @@
+{
+  "name": "payload-validator.js",
+  "version": "0.0.1",
+  "description": "An object validator",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["privatesky", "validation", "schema"],
+  "author": "Alex Sofronie <alsofronie@gmail.com>",
+  "license": "ISC"
+}
