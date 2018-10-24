@@ -1,0 +1,10 @@
+# Editors
+.code
+.vscode
+.idea
+
+# Node related
+/node_modules
+/*.log
+
+# Custom
