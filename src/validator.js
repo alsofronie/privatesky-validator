@@ -50,13 +50,7 @@ var parseDefinition = require('./helpers/parsedef');
 
 var types = {
 
-    'integer': (value) => {
-        try {
-            return (value === parseInt(value));
-        } catch (e) {
-            return false;
-        }
-    },
+    'integer': (value) => (value === parseInt(value)),
 
     'string': (value) => (('' + value) === value),
 
@@ -72,21 +66,43 @@ var types = {
 
     'array': (value) => Array.isArray(value),
 
-    'object': (value) => (value !== null && typeof value === 'object'),
+    'object': (value) => (value !== null && (!Array.isArray(value) && typeof value === 'object')),
 
     'mixed': (value) => true,
 
-    // TODO: check for invalid dates
-    'date': (value) => testRegex(value, '^[0-9]{4}-[0-3][0-9]-[0-3][0-9]$'),
+    'date': (value) => {
 
-    // TODO: check for invalid dates and/or times
-    'datetime': (value) => testRegex(value, '^[0-9]{4}-[0-3][0-9]-[0-3][0-9]$ [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$'),
+        if (!testRegex(value, '^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$')) {
+            return false;
+        }
+        var d = new Date(value);
 
-    // TODO: implement this
-    'timestamp': (value) => true,
+        if (Number.isNaN(d.getTime())) {
+            return false;
+        }
 
-    // TODO: implement this
-    'uuid': (value) => true,
+        return d.toISOString().slice(0, 10) === value;
+    },
+
+    'datetime': (value) => {
+        if (!testRegex(value, '^[0-9]{4}-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$')) {
+            return false;
+        }
+
+        var d = new Date(value.replace(' ', 'T') + '.000Z');
+        if (Number.isNaN(d.getTime())) {
+            return false;
+        }
+
+        return d.toISOString().slice(0, 19).replace('T', ' ') === value;
+    },
+
+    // TODO: how to further validate a timestamp?
+    'timestamp': (value) => value === parseInt(value),
+
+    'unix': (value) => value === parseInt(value),
+
+    'uuid': (value) => testRegex(value, '/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89ABab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'),
 };
 
 var rules = {
@@ -96,59 +112,98 @@ var rules = {
     'min': (value, definition) => {
         var m = definition['min'];
         var t = definition['type'];
-        if (t === 'integer') {
-            return value >= m;
-        } else if (t === 'string' || t === 'array') {
-            return value.length >= m;
+
+        if (t === 'object') {
+            return false;
         }
 
-        return false;
+        if (t === 'string' || t === 'array') {
+            return value && value.length >= parseInt(m);
+        }
+
+        return value >= m;
     },
 
-    // TODO: implement this
     'max': (value, definition) => {
         var m = definition['max'];
         var t = definition['type'];
-        if (t === 'integer') {
-            return value < m;
-        } else if (t === 'string' || t === 'array') {
-            return value.length < m;
+
+        if (t === 'object') {
+            return false;
         }
 
-        return false;
+        if (t === 'string' || t === 'array') {
+            return value.length < parseInt(m);
+        }
+
+        return value < m;
     },
 
-    'exact': (value, definition) => (rules['min'](value, definition) && rules['max'](value, definition)),
+    'exact': (value, definition) => {
+        var m = definition['exact'];
+        var t = definition['type'];
 
-    'alpha': (value, definition) => testRegexp(value, '[a-zA-Z ]+'),
+        if (t === 'object') {
+            return false;
+        }
 
-    'alphanumeric': (value, definition) => testRegexp(value, '[a-zA-Z0-9- ]+'),
+        if (t === 'string' || t === 'array') {
+            return value && value.length === parseInt(m);
+        }
 
-    'digits': (value, definition) => testRegexp(value, '[0-9+-]+'),
+        return value === m;
+    },
+
+    'alpha': (value, definition) => (definition['alpha'] ? testRegex(value, '^[a-zA-Z ]+$') : testRegex(value, '^[^a-zA-Z ]+$')),
+
+    'alphanumeric': (value, definition) => (definition['alphanumeric'] ? testRegex(value, '^[a-zA-Z0-9- ]+$') : testRegex(value, '^[^a-zA-Z0-9- ]+$')),
+
+    'digits': (value, definition) => (definition['digits'] ? testRegex(value, '^[0-9+-]+$') : testRegex(value, '^[^0-9+-]+$')),
 
     'in': (value, definition) => {
-        var i;
-        for (i = 0; i < definition['in'].length; i++) {
-            if (value === definition['in'][i]) {
-                return true;
+        if (definition['type'] === 'array') {
+            // all the array values should be `in`
+            for (var i = 0; i < value.length; i++) {
+                if (definition['in'].indexOf(value[i]) < 0) {
+                    return false;
+                }
             }
-        }
+            return true;
+        } else {
+            for (var i = 0; i < definition['in'].length; i++) {
+                if (value === definition['in'][i]) {
+                    return true;
+                }
+            }
 
-        return false;
+            return false;
+        }
     },
 
-    'within': (value, definition) => {
-        var i;
-        for (i = 0; i < definition['in'].length; i++) {
-            if (value == definition['in'][i]) {
-                return true;
+    'not_in': (value, definition) => {
+        if (definition['type'] === 'array') {
+            // all the array values should not be `in`
+            for (var i = 0; i < value.length; i++) {
+                if (definition['not_in'].indexOf(value[i]) >= 0) {
+                    return false;
+                }
             }
-        }
+            return true;
+        } else {
+            for (var i = 0; i < definition['not_in'].length; i++) {
+                if (value === definition['not_in'][i]) {
+                    return false;
+                }
+            }
 
-        return false;
+            return true;
+        }
     },
 
     'required': (value, definition) => {
+        if (value === undefined) {
+            return false;
+        }
         if (['integer', 'float', 'bool'].indexOf(definition['type']) >= 0) {
             return !value;
         } else if ('array' === definition['type']) {
@@ -161,15 +216,15 @@ var rules = {
     },
 
     '*': (value, definition) => {
-        var i;
         if (definition['type'] === 'array') {
             for (var i = 0; i < value.length; i++) {
-                if (!validate(value[i], definition['*'], definition['@key'] + '.*')) {
+                if (!validate(value[i], definition['*'], definition['@key'] + '.' + i)) {
                     return false;
                 }
             }
+            return true;
         } else if (definition['type'] === 'object') {
-            for (i = 0; i < Object.keys(definition['*']); i++) {
+            for (var i = 0; i < Object.keys(definition['*']); i++) {
                 if (value[i] === undefined) {
                     return false;
                 }
@@ -178,8 +233,9 @@ var rules = {
                     return false;
                 }
             }
+            return true;
         }
-        return true;
+        return false;
     },
 
 };
@@ -188,10 +244,6 @@ function validate(value, definition, key) {
 
     key = key || '@base';
     var def = parseDefinition(definition, key);
-
-    if (def['nullable'] === true && value === null) {
-        return true;
-    }
 
     if (types[def['type']] === undefined) {
         throw {
@@ -202,21 +254,39 @@ function validate(value, definition, key) {
         }
     }
 
+    // Nullable processing first
+    if (def['nullable'] === true && value === null) {
+        return true;
+    }
+
+    // Required processing next
+    if (def['required'] === true) {
+        if (!rules['required'].call(rules, value, def)) {
+            throw {
+                error: true,
+                code: 'required_invalid',
+                name: key,
+                message: 'Required ' + key,
+            };
+        }
+    }
+
     if (!types[def['type']](value)) {
         throw {
             error: true,
             code: 'type_invalid',
             name: key,
-            message: 'Invalid type: ' + def['type'] + ' for ' + key,
+            message: value + ' is not ' + def['type'] + ' for ' + key,
         }
     }
 
-    var rule;
-    for (var i = 0; i < Object.keys(def); i++) {
-        rule = def[i];
+    // We need to process the required and nullable first
 
+
+    Object.keys(def).forEach(rule => {
         // We already checked the type
-        if (rule !== 'type') {
+        if (rule !== 'type' && rule !== '@key' && rule !== 'nullable' && rule !== 'nullable' && rule !== 'required') {
+
             if (rules[rule] === undefined) {
                 throw {
                     error: true,
@@ -226,18 +296,23 @@ function validate(value, definition, key) {
                 }
             }
 
-            if (!rules[rule]) {
+            if (rules[rule].call(rules, value, def) !== true) {
                 throw {
                     error: true,
-                    code: 'invalid',
+                    code: rule + '_invalid',
                     name: key,
                     message: 'Invalid value at rule ' + rule + ' for ' + key
                 }
             }
         }
-    }
-
-    return true;
+    });
 }
 
-module.exports = validator;
+module.exports = (obj, def) => {
+    var fields = Object.keys(def);
+    for (var i = 0; i < fields.length; i++) {
+        var field = fields[i];
+        validate(obj[field], def[field], field);
+    }
+    return true;
+};

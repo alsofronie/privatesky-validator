@@ -189,11 +189,9 @@ but will fail for:
 }
 ```
 
-### Within rule: `within`
+### Not In rule: `not_in`
 
-This rule is similar to `in` rule, but this will not type check the operands (as in `==`).
-
-Both above examples will pass the `within` rule.
+This rule is the negation of `in` rule. The value should **not** be in the provided rule argyment.
 
 ### Regexp rule: `regexp`
 
