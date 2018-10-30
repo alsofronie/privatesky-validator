@@ -1,3 +1,4 @@
+/* eslint-env mocha */
 var assert = require('assert');
 var parse = require('../src/helpers/parsedef');
 
@@ -30,8 +31,7 @@ describe('Parse Definition Helper Library', () => {
                 (err) => {
                     return (typeof err === 'object') &&
                         err.error === true &&
-                        err.code === 'definition_invalid'
-                        ;
+                        err.code === 'definition_invalid';
                 }
             );
         });
@@ -44,8 +44,7 @@ describe('Parse Definition Helper Library', () => {
                 (err) => {
                     return (typeof err === 'object') &&
                         err.error === true &&
-                        err.code === 'definition_invalid'
-                        ;
+                        err.code === 'definition_invalid';
                 }
             );
         });
@@ -53,13 +52,12 @@ describe('Parse Definition Helper Library', () => {
         it('should throw a well-formed error if null key supplied', () => {
             assert.throws(
                 () => {
-                    parse('integer', null)
+                    parse('integer', null);
                 },
                 (err) => {
                     return (typeof err === 'object') &&
                         err.error === true &&
-                        err.code === 'key_invalid'
-                        ;
+                        err.code === 'key_invalid';
                 }
             );
         });
@@ -67,13 +65,12 @@ describe('Parse Definition Helper Library', () => {
         it('should throw a well-formed error if empty key supplied', () => {
             assert.throws(
                 () => {
-                    parse('integer', '')
+                    parse('integer', '');
                 },
                 (err) => {
                     return (typeof err === 'object') &&
                         err.error === true &&
-                        err.code === 'key_invalid'
-                        ;
+                        err.code === 'key_invalid';
                 }
             );
         });
@@ -81,13 +78,12 @@ describe('Parse Definition Helper Library', () => {
         it('should throw a well-formed error if no key supplied', () => {
             assert.throws(
                 () => {
-                    parse('integer')
+                    parse('integer');
                 },
                 (err) => {
                     return (typeof err === 'object') &&
                         err.error === true &&
-                        err.code === 'key_invalid'
-                        ;
+                        err.code === 'key_invalid';
                 }
             );
         });

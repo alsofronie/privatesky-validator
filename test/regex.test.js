@@ -1,3 +1,4 @@
+/* eslint-env mocha */
 var assert = require('assert');
 var re = require('./../src/helpers/regex');
 

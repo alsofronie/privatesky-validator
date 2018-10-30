@@ -1,3 +1,4 @@
+/* eslint-env mocha */
 var assert = require('assert');
 var validator = require('../src/validator');
 
@@ -16,7 +17,7 @@ describe('Validating rules', () => {
         it('should fail for invalid integer', () => {
             assert.throws(
                 () => validator({ age: 18 }, { age: { type: 'integer', min: 19 } }),
-                (err) => err.code === 'min_invalid',
+                (err) => err.code === 'min_invalid'
             );
         });
 
@@ -31,7 +32,7 @@ describe('Validating rules', () => {
         it('should fail for invalid float', () => {
             assert.throws(
                 () => validator({ age: 18.123 }, { age: { type: 'float', min: 18.124 } }),
-                (err) => err.code === 'min_invalid',
+                (err) => err.code === 'min_invalid'
             );
         });
 
@@ -46,14 +47,14 @@ describe('Validating rules', () => {
         it('should fail for invalid string length', () => {
             assert.throws(
                 () => validator({ name: 'Albert Einstein' }, { name: { type: 'string', min: 16 } }),
-                (err) => err.code === 'min_invalid',
+                (err) => err.code === 'min_invalid'
             );
         });
 
         it('should fail for empty string', () => {
             assert.throws(
                 () => validator({ name: '' }, { name: { type: 'string', min: 16 } }),
-                (err) => err.code === 'min_invalid',
+                (err) => err.code === 'min_invalid'
             );
         });
 
@@ -68,14 +69,14 @@ describe('Validating rules', () => {
         it('should fail for invalid array length', () => {
             assert.throws(
                 () => validator({ options: [1, 2, 3, 4] }, { options: { type: 'array', min: 5 } }),
-                (err) => err.code === 'min_invalid',
+                (err) => err.code === 'min_invalid'
             );
         });
 
         it('should fail for empty array', () => {
             assert.throws(
                 () => validator({ options: [] }, { options: { type: 'array', min: 16 } }),
-                (err) => err.code === 'min_invalid',
+                (err) => err.code === 'min_invalid'
             );
         });
 
@@ -90,14 +91,14 @@ describe('Validating rules', () => {
         it('should fail for equal integer value', () => {
             assert.throws(
                 () => validator({ age: 18 }, { age: { type: 'integer', max: 18 } }),
-                (err) => err.code === 'max_invalid',
+                (err) => err.code === 'max_invalid'
             );
         });
 
         it('should fail for invalid integer', () => {
             assert.throws(
                 () => validator({ age: 18 }, { age: { type: 'integer', max: 17 } }),
-                (err) => err.code === 'max_invalid',
+                (err) => err.code === 'max_invalid'
             );
         });
 
@@ -108,14 +109,14 @@ describe('Validating rules', () => {
         it('should fail for equal string length', () => {
             assert.throws(
                 () => validator({ name: 'Albert Einstein' }, { name: { type: 'string', max: 15 } }),
-                (err) => err.code === 'max_invalid',
+                (err) => err.code === 'max_invalid'
             );
         });
 
         it('should fail for invalid string length', () => {
             assert.throws(
                 () => validator({ name: 'Albert Einstein' }, { name: { type: 'string', max: 14 } }),
-                (err) => err.code === 'max_invalid',
+                (err) => err.code === 'max_invalid'
             );
         });
 
@@ -137,7 +138,7 @@ describe('Validating rules', () => {
         it('should fail for invalid array length', () => {
             assert.throws(
                 () => validator({ options: [1, 2, 3, 4] }, { options: { type: 'array', max: 3 } }),
-                (err) => err.code === 'max_invalid',
+                (err) => err.code === 'max_invalid'
             );
         });
 
@@ -160,14 +161,14 @@ describe('Validating rules', () => {
         it('should fail for non-equal integer value', () => {
             assert.throws(
                 () => validator({ age: 18 }, { age: { type: 'integer', exact: 17 } }),
-                (err) => err.code === 'exact_invalid',
+                (err) => err.code === 'exact_invalid'
             );
         });
 
         it('should fail for negative non-equal integer value', () => {
             assert.throws(
                 () => validator({ age: -18 }, { age: { type: 'integer', exact: -17 } }),
-                (err) => err.code === 'exact_invalid',
+                (err) => err.code === 'exact_invalid'
             );
         });
 
@@ -178,14 +179,14 @@ describe('Validating rules', () => {
         it('should fail for non-equal string length', () => {
             assert.throws(
                 () => validator({ name: 'Albert Einstein' }, { name: { type: 'string', exact: 16 } }),
-                (err) => err.code === 'exact_invalid',
+                (err) => err.code === 'exact_invalid'
             );
         });
 
         it('should fail for non-equal string length', () => {
             assert.throws(
                 () => validator({ name: 'Albert Einstein' }, { name: { type: 'string', exact: 14 } }),
-                (err) => err.code === 'exact_invalid',
+                (err) => err.code === 'exact_invalid'
             );
         });
 
@@ -299,7 +300,7 @@ describe('Validating rules', () => {
         it('should fail for invalid array values', () => {
             assert.throws(
                 () => validator({ options: [1, 2, 3, 4, 1, 3, 2] }, { options: { type: 'array', in: [1, 2, 3] } }),
-                (err) => err.code === 'in_invalid',
+                (err) => err.code === 'in_invalid'
             );
         });
 
@@ -336,7 +337,7 @@ describe('Validating rules', () => {
         it('should fail for invalid array values', () => {
             assert.throws(
                 () => validator({ options: [1, 2, 3, 4, 1, 3, 2] }, { options: { type: 'array', not_in: [0, 4, 5] } }),
-                (err) => err.code === 'not_in_invalid',
+                (err) => err.code === 'not_in_invalid'
             );
         });
 
@@ -345,13 +346,13 @@ describe('Validating rules', () => {
     describe('Validating arrays', () => {
         var def = {
             ages: {
-                "type": "array",
-                "min": 3,
-                "max": 10,
-                "*": {
-                    "type": "integer",
-                    "min": 18,
-                    "max": 26
+                type: 'array',
+                min: 3,
+                max: 10,
+                '*': {
+                    type: 'integer',
+                    min: 18,
+                    max: 26
                 }
             }
         };
