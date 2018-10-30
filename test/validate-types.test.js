@@ -196,9 +196,9 @@ describe('Validating types', () => {
             { name: 20 },
             { name: [], },
             { name: ['A', 'B', 'C'], },
-            { name: "20" },
-            { name: "true" },
-            { name: "false" },
+            { name: '20' },
+            { name: 'true' },
+            { name: 'false' },
             { name: { value: 'Jack' } },
             { name: 3.1415926 },
             { name: () => true }

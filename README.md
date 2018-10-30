@@ -7,8 +7,6 @@ This package validates an object definition against the declared types and, opti
 ## TODO's & wishlist
 
  - integrate [JSON-LD](https://json-ld.org/)
- - validate arrays (in development)
- - validate objects (in development)
 
 ## General structure for objects to be validated
 
