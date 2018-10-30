@@ -357,10 +357,95 @@ describe('Validating rules', () => {
             }
         };
 
-        var value = { ages: [18, 19, 20, 21, 22, 23, 24, 25] };
         it('should correctly validate an integer array', () => {
-            assert.equal(validator(value, def), true);
+            var passing = { ages: [18, 19, 20, 21, 22, 23, 24, 25] };
+            assert.equal(validator(passing, def), true);
+        });
+
+        it('should correctly invalidate an invalid array', () => {
+            var failing = { ages: [18, 19, 25, 30] };
+            assert.throws(
+                () => validator(failing, def),
+                (err) => (err.code === 'max_invalid' && err.name === 'ages.3')
+            );
         });
     });
 
+    describe('Validating objects', () => {
+        var def = {
+            actor: {
+                type: 'object',
+                '*': {
+                    name: {
+                        type: 'string',
+                        min: 3,
+                        max: 15
+                    },
+                    age: {
+                        type: 'integer',
+                        min: 18,
+                        max: 50
+                    }
+                }
+            }
+        };
+
+        it('should correctly validate an object', () => {
+            var actor = {
+                name: 'Jason Bourne',
+                age: 30,
+            };
+            assert.equal(validator({ actor }, def), true);
+        });
+
+        it('should correctly invalidate an object', () => {
+            var oldActor = {
+                name: 'Gandalf',
+                age: 170,
+            };
+            assert.throws(
+                () => validator({ actor: oldActor }, def),
+                (err) => (err.code === 'max_invalid' && err.name === 'actor.age')
+            );
+        });
+    });
+
+    describe('Validating array of objects', () => {
+        var def = {
+            actors: {
+                type: 'array',
+                '*': {
+                    type: 'object',
+                    '*': {
+                        name: 'string',
+                        age: {
+                            type: 'integer',
+                            min: 18,
+                            max: 50
+                        }
+                    }
+                }
+            }
+        };
+
+        it('should correctly validate an array of objects', () => {
+            var actors = [
+                { name: 'Jason Bourne', age: 30 },
+                { name: 'Thomas Anderson (Neo)', age: 45 },
+            ];
+            assert.equal(validator({ actors }, def), true);
+        });
+
+        it('should correctly invalidate an array of objects', () => {
+            var actors = [
+                { name: 'Jason Bourne', age: 30 },
+                { name: 'Thomas Anderson (Neo)', age: 45 },
+                { name: 'Gandalf', age: 185 },
+            ];
+            assert.throws(
+                () => validator({ actors }, def),
+                (err) => (err.code === 'max_invalid' && err.name === 'actors.2.age')
+            );
+        });
+    });
 });

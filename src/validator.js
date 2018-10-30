@@ -221,26 +221,19 @@ var rules = {
         var i;
         if (definition['type'] === 'array') {
             for (i = 0; i < value.length; i++) {
-                if (!validate(value[i], definition['*'], definition['@key'] + '.' + i)) {
-                    return false;
-                }
+                validate(value[i], definition['*'], definition['@key'] + '.' + i);
             }
             return true;
         } else if (definition['type'] === 'object') {
-            for (i = 0; i < Object.keys(definition['*']); i++) {
-                if (value[i] === undefined) {
-                    return false;
-                }
 
-                if (!validate(value[i], definition['*'][i], definition['@key'] + definition['*'][i])) {
-                    return false;
-                }
-            }
+            Object.keys(definition['*']).forEach(i => {
+                validate(value[i], definition['*'][i], definition['@key'] + '.' + i);
+            });
+
             return true;
         }
         return false;
     },
-
 };
 
 function validate(value, definition, key) {
@@ -282,9 +275,6 @@ function validate(value, definition, key) {
             message: value + ' is not ' + def['type'] + ' for ' + key,
         };
     }
-
-    // We need to process the required and nullable first
-
 
     Object.keys(def).forEach(rule => {
         // We already checked the type

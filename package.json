@@ -4,10 +4,10 @@
   "description": "An object validator",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha -b",
     "lint": "eslint ./src",
     "lint:fix": "eslint ./src --fix",
-    "test:watch": "mocha -w"
+    "test:watch": "mocha -w -b"
   },
   "keywords": [
     "privatesky",
