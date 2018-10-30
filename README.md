@@ -2,7 +2,7 @@
 
 This package validates an object definition against the declared types and, optionally, a set of validation rules.
 
-## General structure
+## General structure for objects to be validated
 
 ```
 {
@@ -25,7 +25,7 @@ The shortened syntax:
 }
 ```
 
-The complex syntax:
+The extended syntax:
 
 ```
 {
@@ -35,7 +35,7 @@ The complex syntax:
 }
 ```
 
-Further, some validation rules can be written, but only for the complex syntax:
+Further, some validation rules can be written, but only in extended syntax:
 
 ```
 {
@@ -306,7 +306,7 @@ For example, we need to validate an array of values representing ages, which can
 
 ## Validating objects
 
-Another special case is for validating an object structure. For example let's presume we need to validate a Javascript object containing a person's information: name, age, sex and occupation. Further more, the name is a required string, the age must be an integer over 18, and the occupation must be a string no more than 255 characters. A description is an optional string (as an example for mixing the shorter with the complex syntax). The rule will look like this:
+Another special case is for validating an object structure. For example let's presume we need to validate a Javascript object containing a person's information: name, age, sex and occupation. Further more, the name is a required string, the age must be an integer over 18, and the occupation must be a string no more than 255 characters. A description is an optional string (as an example for mixing the shorter with the extended syntax). The rule will look like this:
 
 ```
 {
