@@ -133,10 +133,10 @@ var rules = {
         }
 
         if (t === 'string' || t === 'array') {
-            return value.length < parseInt(m);
+            return value.length <= parseInt(m);
         }
 
-        return value < m;
+        return value <= m;
     },
 
     'exact': (value, definition) => {

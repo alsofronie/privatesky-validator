@@ -88,11 +88,8 @@ describe('Validating rules', () => {
             assert.equal(validator({ age: 18 }, { age: { type: 'integer', max: 19 } }), true);
         });
 
-        it('should fail for equal integer value', () => {
-            assert.throws(
-                () => validator({ age: 18 }, { age: { type: 'integer', max: 18 } }),
-                (err) => err.code === 'max_invalid'
-            );
+        it('should pass for equal integer value', () => {
+            assert.equal(validator({ age: 18 }, { age: { type: 'integer', max: 18 } }), true);
         });
 
         it('should fail for invalid integer', () => {
@@ -106,11 +103,8 @@ describe('Validating rules', () => {
             assert.equal(validator({ name: 'Albert Einstein' }, { name: { type: 'string', max: 16 } }), true);
         });
 
-        it('should fail for equal string length', () => {
-            assert.throws(
-                () => validator({ name: 'Albert Einstein' }, { name: { type: 'string', max: 15 } }),
-                (err) => err.code === 'max_invalid'
-            );
+        it('should pass for equal string length', () => {
+            assert.equal(validator({ name: 'Albert Einstein' }, { name: { type: 'string', max: 15 } }), true);
         });
 
         it('should fail for invalid string length', () => {
@@ -129,10 +123,7 @@ describe('Validating rules', () => {
         });
 
         it('should fail for equal array length', () => {
-            assert.throws(
-                () => validator({ options: [1, 2, 3, 4] }, { options: { type: 'array', max: 4 } }),
-                (err) => err.code === 'max_invalid'
-            );
+            assert.equal(validator({ options: [1, 2, 3, 4] }, { options: { type: 'array', max: 4 } }), true);
         });
 
         it('should fail for invalid array length', () => {
@@ -143,7 +134,7 @@ describe('Validating rules', () => {
         });
 
         it('should pass for empty array', () => {
-            assert.equal(validator({ options: [] }, { options: { type: 'array', max: 1 } }), true);
+            assert.equal(validator({ options: [] }, { options: { type: 'array', max: 0 } }), true);
         });
 
     });

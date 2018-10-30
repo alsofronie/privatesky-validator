@@ -103,7 +103,7 @@ The same applies for `timestamp` and `unix` data types, with the corresponding a
 
 ### Maximum rule: `max`
 
-This rule is similar with the `min` rule, with the notable difference of the **exclusion** of the argument value. For example, in the case of the `int` type, the value will be checked to be **less than** the rule argument, not including it's value (as opposed to *less than or equal to*, which is not the case).
+This rule is similar with the `min` rule. For example, in the case of the `int` type, the value will be checked to be **less or equal than** the rule argument.
 
 For example, the definition below:
 
@@ -117,7 +117,7 @@ For example, the definition below:
 }
 ```
 
-will validate a value of `18` to `64`, but a value of `65` will fail validation.
+will validate a value of `18` to `65`, but a value of `66` will fail validation.
 
 ### Exact rule: `exact`
 
