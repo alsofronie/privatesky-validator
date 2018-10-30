@@ -1,3 +1,5 @@
+Build status: [![CircleCI](https://circleci.com/gh/alsofronie/privatesky-validator/tree/master.svg?style=svg)](https://circleci.com/gh/alsofronie/privatesky-validator/tree/master)
+
 # Object schema validator
 
 This package validates an object definition against the declared types and, optionally, a set of validation rules.
