@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
+    "lint": "eslint ./src",
+    "lint:fix": "eslint ./src --fix",
     "test:watch": "mocha -w"
   },
   "keywords": [
@@ -15,6 +17,7 @@
   "author": "Alex Sofronie <alsofronie@gmail.com>",
   "license": "ISC",
   "devDependencies": {
+    "eslint": "^5.8.0",
     "mocha": "^5.2.0"
   }
 }
