@@ -5,7 +5,7 @@ module.exports = (definition, key) => {
             error: true,
             code: 'key_invalid',
             message: 'Invalid call to definition parser, no key supplied'
-        }
+        };
     }
 
     var def = {};
@@ -24,7 +24,7 @@ module.exports = (definition, key) => {
             error: true,
             code: 'definition_invalid',
             message: 'A type must be present within definition',
-        }
+        };
     }
 
     def['@key'] = key;
@@ -34,4 +34,4 @@ module.exports = (definition, key) => {
     }
 
     return def;
-}
+};

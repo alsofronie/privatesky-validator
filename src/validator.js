@@ -68,7 +68,7 @@ var types = {
 
     'object': (value) => (value !== null && (!Array.isArray(value) && typeof value === 'object')),
 
-    'mixed': (value) => true,
+    'mixed': () => true,
 
     'date': (value) => {
 
@@ -161,16 +161,17 @@ var rules = {
     'digits': (value, definition) => (definition['digits'] ? testRegex(value, '^[0-9+-]+$') : testRegex(value, '^[^0-9+-]+$')),
 
     'in': (value, definition) => {
+        var i;
         if (definition['type'] === 'array') {
             // all the array values should be `in`
-            for (var i = 0; i < value.length; i++) {
+            for (i = 0; i < value.length; i++) {
                 if (definition['in'].indexOf(value[i]) < 0) {
                     return false;
                 }
             }
             return true;
         } else {
-            for (var i = 0; i < definition['in'].length; i++) {
+            for (i = 0; i < definition['in'].length; i++) {
                 if (value === definition['in'][i]) {
                     return true;
                 }
@@ -181,16 +182,17 @@ var rules = {
     },
 
     'not_in': (value, definition) => {
+        var i;
         if (definition['type'] === 'array') {
             // all the array values should not be `in`
-            for (var i = 0; i < value.length; i++) {
+            for (i = 0; i < value.length; i++) {
                 if (definition['not_in'].indexOf(value[i]) >= 0) {
                     return false;
                 }
             }
             return true;
         } else {
-            for (var i = 0; i < definition['not_in'].length; i++) {
+            for (i = 0; i < definition['not_in'].length; i++) {
                 if (value === definition['not_in'][i]) {
                     return false;
                 }
@@ -216,15 +218,16 @@ var rules = {
     },
 
     '*': (value, definition) => {
+        var i;
         if (definition['type'] === 'array') {
-            for (var i = 0; i < value.length; i++) {
+            for (i = 0; i < value.length; i++) {
                 if (!validate(value[i], definition['*'], definition['@key'] + '.' + i)) {
                     return false;
                 }
             }
             return true;
         } else if (definition['type'] === 'object') {
-            for (var i = 0; i < Object.keys(definition['*']); i++) {
+            for (i = 0; i < Object.keys(definition['*']); i++) {
                 if (value[i] === undefined) {
                     return false;
                 }
@@ -251,7 +254,7 @@ function validate(value, definition, key) {
             code: 'type_unknown',
             name: key,
             message: 'Unknown type: ' + def['type'] + ' for ' + key,
-        }
+        };
     }
 
     // Nullable processing first
@@ -277,7 +280,7 @@ function validate(value, definition, key) {
             code: 'type_invalid',
             name: key,
             message: value + ' is not ' + def['type'] + ' for ' + key,
-        }
+        };
     }
 
     // We need to process the required and nullable first
@@ -293,7 +296,7 @@ function validate(value, definition, key) {
                     code: 'rule_unknown',
                     name: key,
                     message: 'Unknown rule ' + rule + ' for ' + key
-                }
+                };
             }
 
             if (rules[rule].call(rules, value, def) !== true) {
@@ -302,7 +305,7 @@ function validate(value, definition, key) {
                     code: rule + '_invalid',
                     name: key,
                     message: 'Invalid value at rule ' + rule + ' for ' + key
-                }
+                };
             }
         }
     });
