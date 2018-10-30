@@ -75,7 +75,7 @@ All the derived types are represented as strings or integers, having a hint on t
  - `unix` - an integer representation of an Unix Timestamp (number of seconds since Jan 1st, 1970);
  - `uuid` - The field under validation must be a valid RFC 4122 (version 1, 3, 4, or 5) universally unique identifier (UUID);
 
- > Warning: a type of `any` will not trigger a validation.
+ > Warning: a type of `mixed` will not trigger a validation.
 
 ## Available validation rules
 
