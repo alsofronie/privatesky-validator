@@ -7,8 +7,34 @@ This package validates an object definition against the declared types and, opti
 ## TODO's & wishlist
 
  - integrate [JSON-LD](https://json-ld.org/)
+ - add serializer functionality (pack and unpack)
 
-## General structure for objects to be validated
+## Basic usage
+
+There are two types of data: the **definition** and the **payload**. The definition describes the payload in terms of data types and validation rules.
+
+There are two ways to setup the definition:
+
+```
+
+// In constructor
+var schema = new Schema({
+    id: 'integer',
+    name: 'string'
+});
+
+// Afterwards:
+
+var schema = new Schema();
+schema.setDefinition({
+    id: 'integer',
+    name: 'string'
+});
+```
+
+## General structure for definition
+
+The basic definition form contains the name of the variable and the corresponding type:
 
 ```
 {
@@ -17,31 +43,22 @@ This package validates an object definition against the declared types and, opti
 }
 ```
 
-## Data field definition
-
-A data field is represented by it's name and it's definition. In the example above, the `id` has a type of `integer`. The validation is done only by verifying the type of the variable contents.
-
-The following definitions are equivalent:
-
-The shortened syntax:
-
-```
-{
-    "id": "integer"
-}
-```
-
-The extended syntax:
+Or you can use the extended syntax:
 
 ```
 {
     "id": {
         "type": "integer"
+    },
+    "name": {
+        "type": :"string"
     }
 }
 ```
 
-Further, some validation rules can be written, but only in extended syntax:
+ > Note: The above two definitions are equivalent.
+
+However, the extended syntax allows not only type-based validation, but also rule-based validation:
 
 ```
 {
@@ -49,13 +66,17 @@ Further, some validation rules can be written, but only in extended syntax:
         "type": "integer",
         "min": 10,
         "max": 15
+    },
+    "name": {
+        "type": "string",
+        "required": true
     }
 }
 ```
 
 The rules are applied in the order they appear, with the except of `nullable` rule (see below). If a rule is not satisfied, the code will break at that point and no rules will be further verified.
 
-As a rule, no keys (like the `id` in the example above) cannot start with a `@`. This character is reserved. Also, do not use `*` as a name, because is also reserved (see below Validating arrays).
+ > **Warning**: Do not use in keys (like the `id` in the example above) `@` as starting character. Also, do not use `*` as a name, because is also reserved (see below Validating arrays).
 
 ## Available types
 
@@ -75,10 +96,10 @@ These types are directly supported by JSON format and they should be received as
 All the derived types are represented as strings or integers, having a hint on their format and domain:
 
  - `mixed` - any data can be stored in this variable type;
- - `date` - a string representation of date, in the format `YYYY-MM-DD`;
- - `datetime` - a string representation of date and time, in the format `YYYY-MM-DD HH:mm:ss`;
- - `timestamp` - an integer representation of a Javascript Timestamp (number of milliseconds since Jan 1st, 1970);
- - `unix` - an integer representation of an Unix Timestamp (number of seconds since Jan 1st, 1970);
+ - `date` - a valid date object;
+ - `iso_date` - a string representation of date, in the format `YYYY-MM-DD` or `YYYY-MM-DD HH:mm:ss`;
+ - `iso_date_short` - a string representation of date and time, in the format `YYYY-MM-DD`;
+ - `iso_date_long` - a string representation of date and time, in the format `YYYY-MM-DD HH:mm:ss`;
  - `uuid` - The field under validation must be a valid RFC 4122 (version 1, 3, 4, or 5) universally unique identifier (UUID);
 
  > Warning: a type of `mixed` will not trigger a validation.
@@ -95,11 +116,7 @@ For `string` type, the rule refers to the length of the string, being **greater 
 
 For `array`, the rule refers to the length of the array.
 
-For `date` type, the rule applies as **is after** the argument supplied in the rule definition, which must be a date formatted as `YYYY-MM-DD`
-
-Similar concerns applies for `datetime` type, the format of the supplied argument being `YYYY-MM-DD HH:mm:ss`.
-
-The same applies for `timestamp` and `unix` data types, with the corresponding argument types.
+For `date` type, the rule applies as **is after** the argument supplied in the rule definition, which must be a date or a value that can correctly be parsed by the `Date` constructor.
 
 ### Maximum rule: `max`
 
@@ -230,11 +247,7 @@ If you also need the flags (like `g`, `i`), the syntax is:
 
 ### Required rule: `required`
 
-This rule implies a non-empty value to be present.
-
-For integers, the value must be non-zero. For strings, an empty string `""` will not pass the validation. For arrays, an empty array `[]` will also not pass the validation.
-
-Please note that a boolean value of `false` will not pass the validation.
+This rule validates the *presence* of a variable **AND** a non-empty value.
 
 By default, all the rules contains `required` set to false.
 
@@ -248,7 +261,7 @@ This rule will permit any variable (of any type) to hold a `null` value. The val
 }
 ```
 
-and not `"null"` (string) or any other nullable representation. Note that an empty array will not be treated as null.
+ > Note: a value of `"null"` (string) is not null. An empty array is not a null value.
 
 The rule accepts a boolean (`true` or `false`) as argument.
 
@@ -396,4 +409,58 @@ There is no limit for this depth. You can easily extend the example above for an
 }
 ```
 
-For putting it simpler, the `*` character stands for **every element of the array** or **the property of the object**. There is no need to point out that the `*` character will be ignored for non-array and non-object types and **it should not be used**.
+Putting it simpler, the `*` character stands for **every element of the array** or **the property of the object**.
+
+ > **Note**: The `*` character will be ignored for non-array and non-object types and **should not be used**.
+
+## Registering new types
+
+Sometimes the referenced types are not enough. The `Schema` object allows you to `register` a new type, providing the name and a function for validating the type. The function will receive the `value` and the full `schema` object (so you can use it's built-in functionality).
+
+Take this example:
+
+
+
+
+In the example above, we define a new type named `_person` and a function `personTypeValidator`. The function should return boolean `true` if the type validation passes or `false` otherwise.
+
+Of course, you can use the `schema` argument provided to use the built-in functions. Let's rewrite function in the example to make use of the built-in schema and further validate the name as `string`, `age` as integer with a minimum required value of `18`.
+
+```
+// ...
+var personTypeValidator = function (value, schema) {
+    return schema.check(value, {
+        type: 'object',
+        '*': {
+            name: 'string',
+            age: {
+                type: 'integer',
+                min: 18
+            }
+        }
+    });
+}
+// ...
+```
+
+## Extending rules
+
+In an (almost) similar way you can extend the `rules` functionality. The syntax is almost the same, with the notable difference that you will receive in the validation function the full schema definition, also. We will define a `human` rule that will validate **ANY** type (in this case, an `object`).
+
+```
+var schema = new Schema({
+    human: {
+        type: 'object',
+        human: true
+});
+
+var humanRuleValidator = function (value, definition, schema) {
+    return value.hasOwnProperty('name') && value.hasOwnProperty('age');
+};
+
+schema.extend('human', humanRuleValidator);
+
+schema.validate({
+    person: { name: 'John', age: 33 }
+});
+```

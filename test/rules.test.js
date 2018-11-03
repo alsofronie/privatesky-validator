@@ -1,6 +1,11 @@
 /* eslint-env mocha */
 var assert = require('assert');
-var validator = require('../src/validator');
+var Schema = require('./../src/schema');
+
+var validator = function (obj, definition) {
+    var schema = new Schema(definition);
+    return schema.validate(obj);
+};
 
 describe('Validating rules', () => {
 

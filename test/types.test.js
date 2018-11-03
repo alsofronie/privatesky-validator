@@ -1,6 +1,11 @@
 /* eslint-env mocha */
 var assert = require('assert');
-var validator = require('../src/validator');
+var Schema = require('./../src/schema');
+
+var validator = function (obj, definition) {
+    var schema = new Schema(definition);
+    return schema.validate(obj);
+};
 
 describe('Validating types', () => {
 
@@ -8,29 +13,29 @@ describe('Validating types', () => {
 
         it('should pass a nullable value, even with other enforced rules', () => {
 
-            var def = {
+            var schema = new Schema({
                 name: {
                     type: 'string',
                     nullable: true,
                     min: 10,
                     max: 255
                 }
-            };
+            });
 
-            assert.equal(validator({ name: null }, def), true);
-
+            assert.equal(schema.validate({ name: null }), true);
         });
-
     });
 
     describe('Testing types with correct values', () => {
 
         it('should pass positive floating point', () => {
-            assert.equal(validator({ price: 1.99 }, { price: 'float' }), true);
+            var schema = new Schema({ price: 'float' });
+            assert.equal(schema.validate({ price: 1.99 }), true);
         });
 
         it('should pass negative floating point', () => {
-            assert.equal(validator({ price: -1.99 }, { price: 'float' }), true);
+            var schema = new Schema({ price: 'float' });
+            assert.equal(schema.validate({ price: -1.99 }), true);
         });
 
         it('should pass zero floating point', () => {
@@ -61,20 +66,8 @@ describe('Validating types', () => {
             assert.equal(validator({ prefs: {} }, { prefs: 'object' }), true);
         });
 
-        it('should pass a date string value', () => {
-            assert.equal(validator({ born_at: '2011-12-13' }, { born_at: 'date' }), true);
-        });
-
-        it('should pass a datetime string value', () => {
-            assert.equal(validator({ born_at: '2011-12-13 14:15:16' }, { born_at: 'datetime' }), true);
-        });
-
-        it('should pass a timestamp value', () => {
-            assert.equal(validator({ born_at: 153072089339233 }, { born_at: 'timestamp' }), true);
-        });
-
-        it('should pass an unix value', () => {
-            assert.equal(validator({ born_at: 1440720893 }, { born_at: 'unix' }), true);
+        it('should pass a date value', () => {
+            assert.equal(validator({ now: new Date() }, { born_at: 'date' }), true);
         });
 
     });
@@ -212,13 +205,14 @@ describe('Validating types', () => {
         });
     });
 
-    describe('Date YYYY-MM-DD', () => {
-        it('should pass a date string value', () => {
-            assert.equal(validator({ born_at: '2011-12-13' }, { born_at: 'date' }), true);
-        });
-
-        it('should pass 29 Feb 2000', () => {
-            assert.equal(validator({ born_at: '2000-02-29' }, { born_at: 'date' }), true);
+    describe('ISO Date', () => {
+        [
+            { born_at: '2000-11-01' },
+            { born_at: '2000-02-29' },
+        ].forEach(val => {
+            it('should pass for for ' + val.born_at + ' valid date', () => {
+                assert.equal(validator(val, { born_at: 'iso_date' }), true);
+            });
         });
 
         [
@@ -227,31 +221,11 @@ describe('Validating types', () => {
             { born_at: '2000-00-01' },
             { born_at: '2000-01-32' },
             { born_at: '2001-02-29' },
-        ].forEach(val => {
-            it('should fail for ' + val.born_at + ' invalid date', () => {
-                assert.throws(
-                    () => validator(val, { born_at: 'date' }),
-                    (err) => err.error
-                );
-            });
-        });
-    });
-
-    describe('Date Time YYYY-MM-DD HH:mm:ss', () => {
-        it('should pass a datetime string value', () => {
-            assert.equal(validator({ born_at: '2011-12-13 14:15:16' }, { born_at: 'datetime' }), true);
-        });
-
-        it('should pass 29 Feb 2000', () => {
-            assert.equal(validator({ born_at: '2000-02-29 23:59:59' }, { born_at: 'datetime' }), true);
-        });
-
-        [
+            { born_at: '2001-02-29 11:22:33' },
             { born_at: '2000-11-00 11:22:33' },
             { born_at: '2000-13-00 11:22:33' },
             { born_at: '2000-00-01 11:22:33' },
             { born_at: '2000-01-32 11:22:33' },
-            { born_at: '2001-02-29 11:22:33' },
             { born_at: '2000-01-01 00:00:60' },
             { born_at: '2000-01-01 00:00:96' },
             { born_at: '2000-01-01 24:00:00' },
@@ -261,29 +235,10 @@ describe('Validating types', () => {
         ].forEach(val => {
             it('should fail for ' + val.born_at + ' invalid date', () => {
                 assert.throws(
-                    () => validator(val, { born_at: 'datetime' }),
+                    () => validator(val, { born_at: 'iso_date_long' }),
                     (err) => err.error
                 );
             });
-        });
-    });
-
-    describe('Timestamp and unix types', () => {
-
-        it('should pass a timestamp value', () => {
-            assert.equal(validator({ born_at: 153072089339233 }, { born_at: 'timestamp' }), true);
-        });
-
-        it('should pass a timestamp negative value', () => {
-            assert.equal(validator({ born_at: -153072089339233 }, { born_at: 'timestamp' }), true);
-        });
-
-        it('should pass an unix value', () => {
-            assert.equal(validator({ born_at: 1440720893 }, { born_at: 'unix' }), true);
-        });
-
-        it('should pass an unix negative value', () => {
-            assert.equal(validator({ born_at: -1440720893 }, { born_at: 'unix' }), true);
         });
     });
 

@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 var assert = require('assert');
-var parse = require('../src/helpers/parsedef');
+var parse = require('../src/helpers/normalize-def');
 
 describe('Parse Definition Helper Library', () => {
     describe('initial', () => {
@@ -95,7 +95,8 @@ describe('Parse Definition Helper Library', () => {
             assert.deepEqual(parse('non existent type', 'a'), {
                 '@key': 'a',
                 nullable: false,
-                type: 'non existent type'
+                type: 'non existent type',
+                required: false
             });
         });
 
@@ -104,6 +105,7 @@ describe('Parse Definition Helper Library', () => {
                 '@key': 'age',
                 nullable: false,
                 type: 'integer',
+                required: false
             });
         });
 
@@ -111,7 +113,8 @@ describe('Parse Definition Helper Library', () => {
             assert.deepEqual(parse({ type: 'integer' }, 'age'), {
                 '@key': 'age',
                 nullable: false,
-                type: 'integer'
+                type: 'integer',
+                required: false
             });
         });
 
@@ -119,7 +122,8 @@ describe('Parse Definition Helper Library', () => {
             assert.deepEqual(parse({ type: 'integer', nullable: false }, 'age'), {
                 '@key': 'age',
                 nullable: false,
-                type: 'integer'
+                type: 'integer',
+                required: false
             });
         });
 
@@ -131,7 +135,8 @@ describe('Parse Definition Helper Library', () => {
             assert.deepEqual(parse(def, 'age'), {
                 '@key': 'age',
                 nullable: true,
-                type: 'integer'
+                type: 'integer',
+                required: false
             });
         });
 
@@ -147,6 +152,7 @@ describe('Parse Definition Helper Library', () => {
             assert.deepEqual(parse(def, 'age'), {
                 '@key': 'age',
                 nullable: false,
+                required: false,
                 type: 'integer',
                 anotherProperty: {
                     one: 'two',

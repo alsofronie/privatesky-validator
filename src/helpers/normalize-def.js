@@ -29,9 +29,11 @@ module.exports = (definition, key) => {
 
     def['@key'] = key;
 
-    if (def['nullable'] === undefined) {
-        def['nullable'] = false;
+    if (def.nullable === undefined) {
+        def.nullable = false;
     }
+
+    def.required = !!def.required;
 
     return def;
 };
