@@ -85,6 +85,14 @@ Schema.prototype.setDefinition = function (definition) {
     this.definition = definition;
 };
 
+Schema.prototype.getDefinition = function () {
+    var cloned = {};
+    Object.keys(this.definition).forEach(field => {
+        cloned[field] = parse(this.definition[field], field);
+    });
+    return cloned;
+};
+
 Schema.prototype.register = function (name, callback) {
     this.types[name] = callback;
 };

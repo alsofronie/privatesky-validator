@@ -1,23 +1,23 @@
 /* eslint-env mocha */
 var assert = require('assert');
-var parse = require('../src/helpers/normalize-def');
+var normalize = require('../src/helpers/normalize-def');
 
-describe('Parse Definition Helper Library', () => {
+describe('Normalize Definition Helper Library', () => {
     describe('initial', () => {
         it('should exist and be a function', () => {
-            assert.equal('function', typeof parse);
+            assert.equal('function', typeof normalize);
         });
 
         it('should return something when called', () => {
-            assert.notEqual(undefined, parse('integer', '_base'));
+            assert.notEqual(undefined, normalize('integer', '_base'));
         });
 
         it('should return non-null value when called', () => {
-            assert.notEqual(null, parse('integer', 'base'));
+            assert.notEqual(null, normalize('integer', 'base'));
         });
 
         it('should return an object when called', () => {
-            assert.equal('object', typeof parse('integer', 'base'));
+            assert.equal('object', typeof normalize('integer', 'base'));
         });
     });
 
@@ -26,7 +26,7 @@ describe('Parse Definition Helper Library', () => {
         it('should throw a well-formed error if an empty definition is supplied', () => {
             assert.throws(
                 () => {
-                    parse('', 'key');
+                    normalize('', 'key');
                 },
                 (err) => {
                     return (typeof err === 'object') &&
@@ -39,7 +39,7 @@ describe('Parse Definition Helper Library', () => {
         it('should throw a well-formed error if a null definition is supplied', () => {
             assert.throws(
                 () => {
-                    parse(null, 'key');
+                    normalize(null, 'key');
                 },
                 (err) => {
                     return (typeof err === 'object') &&
@@ -52,7 +52,7 @@ describe('Parse Definition Helper Library', () => {
         it('should throw a well-formed error if null key supplied', () => {
             assert.throws(
                 () => {
-                    parse('integer', null);
+                    normalize('integer', null);
                 },
                 (err) => {
                     return (typeof err === 'object') &&
@@ -65,7 +65,7 @@ describe('Parse Definition Helper Library', () => {
         it('should throw a well-formed error if empty key supplied', () => {
             assert.throws(
                 () => {
-                    parse('integer', '');
+                    normalize('integer', '');
                 },
                 (err) => {
                     return (typeof err === 'object') &&
@@ -78,7 +78,7 @@ describe('Parse Definition Helper Library', () => {
         it('should throw a well-formed error if no key supplied', () => {
             assert.throws(
                 () => {
-                    parse('integer');
+                    normalize('integer');
                 },
                 (err) => {
                     return (typeof err === 'object') &&
@@ -92,7 +92,7 @@ describe('Parse Definition Helper Library', () => {
     describe('Core functionality', () => {
 
         it('should not validate the type', () => {
-            assert.deepEqual(parse('non existent type', 'a'), {
+            assert.deepEqual(normalize('non existent type', 'a'), {
                 '@key': 'a',
                 nullable: false,
                 type: 'non existent type',
@@ -101,7 +101,7 @@ describe('Parse Definition Helper Library', () => {
         });
 
         it('should correctly return a simple syntax definition', () => {
-            assert.deepEqual(parse('integer', 'age'), {
+            assert.deepEqual(normalize('integer', 'age'), {
                 '@key': 'age',
                 nullable: false,
                 type: 'integer',
@@ -110,7 +110,7 @@ describe('Parse Definition Helper Library', () => {
         });
 
         it('should correctly return a complex definition without nullable', () => {
-            assert.deepEqual(parse({ type: 'integer' }, 'age'), {
+            assert.deepEqual(normalize({ type: 'integer' }, 'age'), {
                 '@key': 'age',
                 nullable: false,
                 type: 'integer',
@@ -119,7 +119,7 @@ describe('Parse Definition Helper Library', () => {
         });
 
         it('should correctly return a complex definition with nullable', () => {
-            assert.deepEqual(parse({ type: 'integer', nullable: false }, 'age'), {
+            assert.deepEqual(normalize({ type: 'integer', nullable: false }, 'age'), {
                 '@key': 'age',
                 nullable: false,
                 type: 'integer',
@@ -132,7 +132,7 @@ describe('Parse Definition Helper Library', () => {
                 type: 'integer',
                 nullable: true
             };
-            assert.deepEqual(parse(def, 'age'), {
+            assert.deepEqual(normalize(def, 'age'), {
                 '@key': 'age',
                 nullable: true,
                 type: 'integer',
@@ -149,7 +149,7 @@ describe('Parse Definition Helper Library', () => {
                 },
                 'another property': ['here']
             };
-            assert.deepEqual(parse(def, 'age'), {
+            assert.deepEqual(normalize(def, 'age'), {
                 '@key': 'age',
                 nullable: false,
                 required: false,
